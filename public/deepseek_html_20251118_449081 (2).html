@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS Sender - Philippines</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .input-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+            font-weight: normal;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .counter {
+            text-align: right;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .cooldown-timer {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .security-notice {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #856404;
+        }
+
+        .security-notice h3 {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .example {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .example h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .example-code {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .header, .form-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 SMS Sender PH</h1>
+            <p>Send text messages to Philippine numbers</p>
+        </div>
+        
+        <div class="form-container">
+            <div class="security-notice">
+                <h3>🔒 Security Features</h3>
+                • Rate limiting: Max 5 messages per 15 minutes<br>
+                • Cooldown period: 10 seconds between messages to same number<br>
+                • Real SMS delivery via Twilio
+            </div>
+
+            <form id="smsForm">
+                <div class="form-group">
+                    <label for="phone">
+                        Phone Number:
+                        <span class="input-hint">Philippine format (e.g., 09123456789)</span>
+                    </label>
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        placeholder="09123456789" 
+                        required
+                        pattern="^(09|\+639)\d{9}$"
+                        title="Please enter a valid Philippine phone number (09XXXXXXXXX or +639XXXXXXXXX)"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="sender">
+                        Your Name:
+                        <span class="input-hint">This will appear as the sender name (max 11 chars)</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="sender" 
+                        placeholder="Enter your name" 
+                        required
+                        maxlength="11"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="text">
+                        Message:
+                        <span class="input-hint">Type your message below</span>
+                    </label>
+                    <textarea 
+                        id="text" 
+                        placeholder="Enter your message here..." 
+                        required
+                        maxlength="160"
+                    ></textarea>
+                    <div class="counter">
+                        <span id="charCount">0</span>/160 characters
+                    </div>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Sending SMS...</p>
+                </div>
+
+                <div class="cooldown-timer" id="cooldownTimer" style="display: none;">
+                    ⏳ Please wait <span id="countdown">10</span> seconds before sending another message
+                </div>
+                
+                <button type="submit" class="btn" id="submitBtn">
+                    Send SMS
+                </button>
+            </form>
+            
+            <div class="result" id="result"></div>
+
+            <div class="example">
+                <h3>📋 Example Usage:</h3>
+                <div class="example-code">
+                    Phone: 09123456789<br>
+                    Name: Juan Dela Cruz<br>
+                    Message: Hi! This is a test message from SMS Sender.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('smsForm');
+        const phoneInput = document.getElementById('phone');
+        const senderInput = document.getElementById('sender');
+        const textInput = document.getElementById('text');
+        const charCount = document.getElementById('charCount');
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        const cooldownTimer = document.getElementById('cooldownTimer');
+        const countdownDisplay = document.getElementById('countdown');
+
+        let cooldownActive = false;
+        let countdown = 0;
+
+        // Character counter
+        textInput.addEventListener('input', function() {
+            const count = this.value.length;
+            charCount.textContent = count;
+            
+            if (count > 160) {
+                charCount.style.color = '#dc3545';
+            } else if (count > 140) {
+                charCount.style.color = '#ffc107';
+            } else {
+                charCount.style.color = '#666';
+            }
+        });
+
+        // Form submission
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (cooldownActive) return;
+            
+            let phone = phoneInput.value.trim();
+            const sender = senderInput.value.trim();
+            const text = textInput.value.trim();
+
+            // Basic validation
+            if (!phone || !sender || !text) {
+                showResult('Please fill in all fields', 'error');
+                return;
+            }
+
+            // Validate Philippine phone number
+            if (!isValidPhilippinePhone(phone)) {
+                showResult('Please enter a valid Philippine phone number (09XXXXXXXXX or +639XXXXXXXXX)', 'error');
+                return;
+            }
+
+            if (text.length > 160) {
+                showResult('Message too long (max 160 characters)', 'error');
+                return;
+            }
+
+            // Format phone number for API (ensure it starts with +63)
+            phone = formatPhoneNumber(phone);
+
+            // Show loading state
+            setLoading(true);
+
+            try {
+                const response = await fetch(`/api/sms?phone=${encodeURIComponent(phone)}&sender=${encodeURIComponent(sender)}&text=${encodeURIComponent(text)}`);
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('✓ SMS sent successfully!', 'success');
+                    startCooldown();
+                    form.reset();
+                    charCount.textContent = '0';
+                    charCount.style.color = '#666';
+                } else {
+                    showResult('✗ ' + (data.error || 'Failed to send SMS'), 'error');
+                    if (response.status === 429) {
+                        startCooldown(parseInt(data.error.match(/\d+/)?.[0]) || 10);
+                    }
+                }
+            } catch (error) {
+                showResult('✗ Network error: Could not send SMS', 'error');
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // Cooldown timer function
+        function startCooldown(seconds = 10) {
+            cooldownActive = true;
+            countdown = seconds;
+            submitBtn.disabled = true;
+            cooldownTimer.style.display = 'block';
+            updateCountdown();
+
+            const timer = setInterval(() => {
+                countdown--;
+                updateCountdown();
+                
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    cooldownActive = false;
+                    submitBtn.disabled = false;
+                    cooldownTimer.style.display = 'none';
+                }
+            }, 1000);
+        }
+
+        function updateCountdown() {
+            countdownDisplay.textContent = countdown;
+        }
+
+        // Philippine phone number validation
+        function isValidPhilippinePhone(phone) {
+            const cleanPhone = phone.replace(/[\s\-]/g, '');
+            const phRegex = /^(09|\+639)\d{9}$/;
+            return phRegex.test(cleanPhone);
+        }
+
+        // Format phone number to +63 format
+        function formatPhoneNumber(phone) {
+            let cleanPhone = phone.replace(/[\s\-]/g, '');
+            if (cleanPhone.startsWith('09')) {
+                cleanPhone = '+63' + cleanPhone.substring(1);
+            }
+            return cleanPhone;
+        }
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                loading.style.display = 'block';
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Sending...';
+            } else {
+                loading.style.display = 'none';
+                submitBtn.disabled = cooldownActive;
+                submitBtn.textContent = 'Send SMS';
+            }
+        }
+
+        function showResult(message, type) {
+            result.textContent = message;
+            result.className = `result ${type}`;
+            result.style.display = 'block';
+            
+            setTimeout(() => {
+                result.style.display = 'none';
+            }, 5000);
+        }
+
+        // Real-time phone number formatting
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.startsWith('63')) {
+                value = '+' + value;
+            } else if (value.startsWith('9') && value.length === 10) {
+                value = '09' + value.substring(1);
+            } else if (value.length > 0 && !value.startsWith('0') && !value.startsWith('9') && !value.startsWith('63')) {
+                value = '09' + value;
+            }
+            
+            e.target.value = value;
+        });
+
+        // Auto-capitalize first letter of each word in sender name
+        senderInput.addEventListener('input', function(e) {
+            if (e.target.value.length === 1) {
+                e.target.value = e.target.value.toUpperCase();
+            }
+        });
+    </script>
+</body>
+</html>
